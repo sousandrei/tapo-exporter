@@ -15,4 +15,6 @@ tasks:
 
   container-push:
     cmds:
+      - docker tag ghcr.io/sousandrei/tapo-exporter:{{.short_sha}} ghcr.io/sousandrei/tapo-exporter:latest
       - docker push ghcr.io/sousandrei/tapo-exporter:{{.short_sha}}
+      - docker push ghcr.io/sousandrei/tapo-exporter:latest
