@@ -1,0 +1,13 @@
+version: '3'
+
+vars:
+  short_sha: $(git rev-parse --short HEAD)
+
+tasks:
+  container-build:
+    cmds:
+      - docker build -t ghcr.io/${{ github.repository }}:${{ env.short_sha }} .
+
+  container-push:
+    cmds:
+      - docker push ghcr.io/${{ github.repository }}:${{ env.short_sha }}
