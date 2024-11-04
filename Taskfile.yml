@@ -1,13 +1,18 @@
 version: '3'
 
-vars:
-  short_sha: $(git rev-parse --short HEAD)
+env:
+  short_sha:
+    sh: echo $(git rev-parse --short HEAD)
 
 tasks:
+  version:
+    cmds:
+      - echo {{.short_sha}}
+
   container-build:
     cmds:
-      - docker build -t ghcr.io/${{ github.repository }}:${{ env.short_sha }} .
+      - docker build -t ghcr.io/sousandrei/tapo-exporter:{{.short_sha}} -f Containerfile .
 
   container-push:
     cmds:
-      - docker push ghcr.io/${{ github.repository }}:${{ env.short_sha }}
+      - docker push ghcr.io/sousandrei/tapo-exporter:{{.short_sha}}

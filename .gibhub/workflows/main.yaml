@@ -38,10 +38,5 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: set short sha
-        run: |
-          short_sha=$(git rev-parse --short ${{ github.sha }})
-          echo "short_sha=$short_sha" >> $GITHUB_ENV
-
       - run: task container-build
       - run: task container-push
