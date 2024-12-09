@@ -4,8 +4,8 @@ name = "tapo-exporter"
 version = "0.1.0"
 
 [dependencies]
-metrics = "0.24.0"
+metrics = "0.24.1"
 metrics-exporter-prometheus = "0.16.0"
 metrics-util = "0.18.0"
-tapo = "0.7.17"
+tapo = "0.8.0"
 tokio = { version = "1", features = ["full"] }
