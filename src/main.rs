@@ -4,14 +4,13 @@ mod metrics;
 mod sensor;
 mod shutdown;
 
-use std::{io, time::Instant};
+use std::io;
 
 use tokio::sync::watch;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let boot_time = Instant::now();
     let config_result = config::Config::from_env();
     let env_filter = match &config_result {
         Ok(config) => EnvFilter::new(&config.rust_log),
@@ -33,7 +32,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     metrics::describe_metrics();
 
     let (shutdown_tx, shutdown_rx) = watch::channel(false);
-    let app_state = http::AppState::new(prometheus_handle.clone(), boot_time);
+    let app_state = http::AppState::new(prometheus_handle.clone());
     let app = http::build_router(app_state);
     let listener = match tokio::net::TcpListener::bind("0.0.0.0:3000").await {
         Ok(listener) => listener,
