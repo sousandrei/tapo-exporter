@@ -7,7 +7,9 @@ Exports T310 temperature and humidity data to Prometheus using a Tapo H100 hub.
 The exporter listens on `0.0.0.0:3000`:
 
 - `GET /metrics` exposes Prometheus metrics.
-- `GET /healthz` returns `200 OK` when the process is running.
+- `GET /healthz` returns `200 OK` when the exporter process and HTTP router are
+  running. It is a liveness endpoint and does not guarantee Tapo connectivity
+  or fresh sensor data.
 - Unknown routes return `404 Not Found`.
 
 The exporter publishes `room_temperature` and `room_humidity` gauges, each

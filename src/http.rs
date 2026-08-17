@@ -68,15 +68,20 @@ async fn request_logging(State(state): State<AppState>, request: Request, next: 
     let status = response.status();
     let latency = started.elapsed();
 
+    let mut next_metrics_log = match state.next_metrics_log.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => {
+            tracing::error!("metrics log lock was poisoned; recovering its state");
+            poisoned.into_inner()
+        }
+    };
+
     if should_log_request(
         &method,
         &path,
         status,
         Instant::now(),
-        &mut state
-            .next_metrics_log
-            .lock()
-            .expect("metrics log lock poisoned"),
+        &mut next_metrics_log,
     ) {
         if status == StatusCode::OK {
             tracing::info!(
@@ -226,6 +231,27 @@ mod tests {
             .filter(|logged| *logged)
             .count();
         assert_eq!(logged, 1);
+    }
+
+    #[test]
+    fn poisoned_metrics_log_lock_can_be_recovered() {
+        let next_log = Mutex::new(Instant::now() + METRICS_LOG_INTERVAL);
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let _guard = next_log.lock().expect("test lock should be healthy");
+            panic!("poison test");
+        }));
+
+        let mut next_log = match next_log.lock() {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+        assert!(!should_log_request(
+            &Method::GET,
+            "/metrics",
+            StatusCode::OK,
+            Instant::now(),
+            &mut next_log,
+        ));
     }
 
     #[tokio::test]

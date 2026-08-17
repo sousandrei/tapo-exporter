@@ -7,12 +7,11 @@ version = "0.1.0"
 axum = "0.8"
 envy = "0.4"
 metrics = "0.24.6"
-metrics-exporter-prometheus = "0.18.3"
+metrics-exporter-prometheus = { version = "0.18.3", default-features = false }
 metrics-util = "0.20.4"
 serde = { version = "1", features = ["derive"] }
 tapo = "0.9.0"
-tokio = { version = "1", features = ["full"] }
-tower-http = { version = "0.7.0", features = ["trace"] }
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 
