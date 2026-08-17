@@ -10,6 +10,9 @@ The exporter listens on `0.0.0.0:3000`:
 - `GET /healthz` returns `200 OK` when the process is running.
 - Unknown routes return `404 Not Found`.
 
+The exporter publishes `room_temperature` and `room_humidity` gauges, each
+labelled with the Tapo device nickname as `name`.
+
 ## Configuration
 
 Set these environment variables:

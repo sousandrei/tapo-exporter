@@ -11,7 +11,7 @@ tasks:
 
   container-build:
     cmds:
-      - docker build -t ghcr.io/sousandrei/tapo-exporter:{{.short_sha}} -f Containerfile .
+      - docker build -t ghcr.io/sousandrei/tapo-exporter:{{.short_sha}} -f Dockerfile .
 
   container-push:
     cmds:
