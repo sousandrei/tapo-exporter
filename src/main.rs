@@ -1,5 +1,6 @@
+mod config;
+
 use std::{
-    env,
     sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
@@ -31,7 +32,11 @@ struct AppState {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let boot_time = Instant::now();
-    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+    let config_result = config::Config::from_env();
+    let env_filter = match &config_result {
+        Ok(config) => EnvFilter::new(&config.rust_log),
+        Err(_) => EnvFilter::new("info"),
+    };
 
     tracing_subscriber::registry()
         .with(env_filter)
@@ -40,9 +45,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("starting tapo exporter");
 
-    let tapo_username = env::var("TAPO_USERNAME").expect("TAPO_USERNAME is required");
-    let tapo_password = env::var("TAPO_PASSWORD").expect("TAPO_PASSWORD is required");
-    let tapo_hub_ip = env::var("TAPO_HUB_IP").expect("TAPO_HUB_IP is required");
+    let config = config_result.map_err(|error| {
+        tracing::error!(%error, "invalid configuration");
+        error
+    })?;
 
     let prometheus_handle = PrometheusBuilder::new()
         .idle_timeout(
@@ -87,8 +93,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     tracing::info!("connecting to Tapo hub");
-    let hub = match tapo::ApiClient::new(tapo_username, tapo_password)
-        .h100(tapo_hub_ip)
+    let hub = match tapo::ApiClient::new(config.tapo_username, config.tapo_password)
+        .h100(config.tapo_hub_ip)
         .await
     {
         Ok(hub) => {

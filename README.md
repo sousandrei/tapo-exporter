@@ -16,8 +16,12 @@ Set these environment variables:
 
 - `TAPO_USERNAME`
 - `TAPO_PASSWORD`
-- `TAPO_HUB_IP`
+- `TAPO_HUB_IP` must be a valid IPv4 or IPv6 address.
 - `RUST_LOG` is optional and defaults to `info`.
+
+Configuration is parsed and validated at startup. Missing, empty, or invalid
+values produce a clear startup error before the exporter connects to the Tapo
+hub. Configuration errors do not include the Tapo password.
 
 Successful `/metrics` requests are logged at most once per hour, with the
 window anchored to process boot. Non-200 responses and Tapo polling errors are
